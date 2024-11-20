@@ -1,3 +1,4 @@
+mod game;
 mod hello_world;
 
 use axum::Router;
