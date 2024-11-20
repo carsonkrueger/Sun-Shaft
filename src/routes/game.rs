@@ -1,15 +1,15 @@
 use super::{AppState, PublicRoute, RoutePath};
 use axum::{response::IntoResponse, routing::get, Router};
 
-pub struct HelloWorldRoute;
+pub struct GameRoute;
 
-impl RoutePath for HelloWorldRoute {
+impl RoutePath for GameRoute {
     fn path(&self) -> &'static str {
         &"/game"
     }
 }
 
-impl PublicRoute for HelloWorldRoute {
+impl PublicRoute for GameRoute {
     fn router(&self) -> axum::Router<AppState> {
         Router::new().route("/:id", get(start_game))
     }

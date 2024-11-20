@@ -2,6 +2,7 @@ mod game;
 mod hello_world;
 
 use axum::Router;
+use game::GameRoute;
 use hello_world::HelloWorldRoute;
 use sqlx::{Pool, Postgres};
 
@@ -18,7 +19,7 @@ pub trait PublicRoute: RoutePath {
     fn router(&self) -> Router<AppState>;
 }
 
-const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[&HelloWorldRoute];
+const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[&HelloWorldRoute, &GameRoute];
 
 // const PRIVATE_ROUTES: [NestedRoute; 1] = [];
 
