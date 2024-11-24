@@ -7,6 +7,7 @@ use tower_http::cors::{Any, CorsLayer};
 // mod libs;
 // mod middleware;
 // mod models;
+mod config;
 mod routes;
 // mod services;
 

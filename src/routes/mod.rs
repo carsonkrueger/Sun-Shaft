@@ -36,10 +36,8 @@ pub fn create_routes(state: AppState) -> Router {
     //         .layer(CookieManagerLayer::new())
     //         .with_state(app_state)
     let mut router = Router::new();
-
     for &r in PUBLIC_ROUTES {
         router = router.nest(r.path(), r.router());
     }
-
     router.with_state(state)
 }
