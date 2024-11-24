@@ -1,27 +1,29 @@
 use std::env;
 
+#[derive(Debug)]
 enum ConfigError {
     ConfigMissingEnv(&'static str),
 }
 
 pub type Result<T> = std::result::Result<T, ConfigError>;
 
+#[derive(Debug)]
 #[allow(non_snake_case)]
 pub struct Config {
-    ENVIRONMENT: String,
-    DB_DOMAIN: String,
-    DB_NAME: String,
-    DB_USER: String,
-    DB_PORT: String,
-    DB_PASSWORD: String,
-    BACK_END_DOMAIN: String,
-    BACK_END_PORT: String,
+    pub ENVIRONMENT: Environment,
+    pub DB_DOMAIN: String,
+    pub DB_NAME: String,
+    pub DB_USER: String,
+    pub DB_PORT: String,
+    pub DB_PASSWORD: String,
+    pub BACK_END_DOMAIN: String,
+    pub BACK_END_PORT: String,
 }
 
 impl Config {
     pub fn load_config() -> Result<Self> {
         Ok(Config {
-            ENVIRONMENT: Self::get_env_var("ENVIRONMENT")?,
+            ENVIRONMENT: Self::get_env_var("ENVIRONMENT")?.into(),
             DB_DOMAIN: Self::get_env_var("DB_DOMAIN")?,
             DB_NAME: Self::get_env_var("DB_NAME")?,
             DB_USER: Self::get_env_var("DB_USER")?,
@@ -32,6 +34,21 @@ impl Config {
         })
     }
     fn get_env_var(name: &'static str) -> Result<String> {
-        env::var(name).map_err(|_| ConfigError::ConfigMissingEnv(name))
+        dotenvy::var(name).map_err(|_| ConfigError::ConfigMissingEnv(name))
+    }
+}
+
+#[derive(Debug)]
+pub enum Environment {
+    DEV,
+    PROD,
+}
+
+impl From<String> for Environment {
+    fn from(value: String) -> Self {
+        match value.to_lowercase().as_str() {
+            "production" | "prod" => Self::PROD,
+            "development" | "dev" | _ => Self::DEV,
+        }
     }
 }

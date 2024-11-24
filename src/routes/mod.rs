@@ -20,7 +20,6 @@ pub trait PublicRoute: RoutePath {
 }
 
 const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[&HelloWorldRoute, &GameRoute];
-
 // const PRIVATE_ROUTES: [NestedRoute; 1] = [];
 
 pub fn create_routes(state: AppState) -> Router {

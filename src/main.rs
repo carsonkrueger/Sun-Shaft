@@ -1,3 +1,4 @@
+use config::Config;
 use dotenvy::dotenv;
 use routes::AppState;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
@@ -11,12 +12,11 @@ mod config;
 mod routes;
 // mod services;
 
-pub static mut ENVIRONMENT: Environment = Environment::DEV;
-
 #[tokio::main]
 async fn main() {
     dotenv().expect("could not load .env");
-    let pool = create_pool().await;
+    let config: Config = Config::load_config().expect("Err loading config");
+    let pool = create_pool(&config).await;
 
     sqlx::migrate!("./migrations")
         .run(&pool)
@@ -31,9 +31,7 @@ async fn main() {
     let state = AppState { pool };
     let router = routes::create_routes(state).layer(cors);
 
-    let be_domain = dotenvy::var("BACK_END_DOMAIN").expect("BE domain missing");
-    let be_port = dotenvy::var("BACK_END_PORT").expect("BE port missing");
-    let addr = format!("{}:{}", be_domain, be_port);
+    let addr = format!("{}:{}", config.BACK_END_DOMAIN, config.BACK_END_PORT);
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect(&format!("Could not listen on {}", addr));
@@ -44,22 +42,11 @@ async fn main() {
         .expect("Could not serve axum app");
 }
 
-async fn create_pool() -> Pool<Postgres> {
-    let environment = dotenvy::var(&"ENVIRONMENT").expect("Environment var missing");
-    let db_name = dotenvy::var(&"DB_NAME").expect("DB name missing");
-    let db_user = dotenvy::var(&"DB_USER").expect("DB user missing");
-    let db_domain = dotenvy::var(&"DB_DOMAIN").expect("DB domain missing");
-    let db_port = dotenvy::var(&"DB_PORT").expect("DB port missing");
-    let db_password = dotenvy::var(&"DB_PASSWORD").expect("DB password missing");
-
+async fn create_pool(config: &Config) -> Pool<Postgres> {
     let db_url = format!(
         "postgres://{}:{}@{}:{}/{}",
-        db_user, db_password, db_domain, db_port, db_name
+        config.DB_USER, config.DB_PASSWORD, config.DB_DOMAIN, config.DB_PORT, config.DB_NAME
     );
-
-    unsafe {
-        ENVIRONMENT = Environment::from(environment);
-    }
 
     let pool = PgPoolOptions::new()
         .max_connections(1)
@@ -68,18 +55,4 @@ async fn create_pool() -> Pool<Postgres> {
         .await
         .expect("Could not connect to the database");
     pool
-}
-
-pub enum Environment {
-    DEV,
-    PROD,
-}
-
-impl From<String> for Environment {
-    fn from(value: String) -> Self {
-        match value.to_lowercase().as_str() {
-            "production" | "prod" => Self::PROD,
-            "development" | "dev" | _ => Self::DEV,
-        }
-    }
 }
