@@ -1,7 +1,6 @@
 Create and setup the .env with the appropriate variables:
 
 ```
-DATABASE_URL="postgres://postgres:1234@localhost:5432/sun-shaft"
 JWT_SECRET="5QCyRSK2390jncG4HRDtJrtesdfb30012KLlsejzg"
 
 ENVIRONMENT="development"
