@@ -1,10 +1,15 @@
-mod game;
 mod hello_world;
+mod steam;
 
-use axum::Router;
-use game::GameRoute;
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Router,
+};
 use hello_world::HelloWorldRoute;
 use sqlx::{Pool, Postgres};
+use steam::SteamRoute;
+use steamworks::AppId;
 
 #[derive(Debug, Clone)]
 pub struct AppState {
@@ -19,7 +24,7 @@ pub trait PublicRoute: RoutePath {
     fn router(&self) -> Router<AppState>;
 }
 
-const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[&HelloWorldRoute, &GameRoute];
+const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[&HelloWorldRoute, &SteamRoute];
 // const PRIVATE_ROUTES: [NestedRoute; 1] = [];
 
 pub fn create_routes(state: AppState) -> Router {
@@ -39,4 +44,32 @@ pub fn create_routes(state: AppState) -> Router {
         router = router.nest(r.path(), r.router());
     }
     router.with_state(state)
+}
+
+pub type RouteResult<T> = Result<T, RouteError>;
+
+pub enum RouteError {
+    SAInitError(steamworks::SteamAPIInitError),
+    SAAppNotInstalled(AppId),
+}
+
+impl IntoResponse for RouteError {
+    fn into_response(self) -> Response {
+        match self {
+            RouteError::SAInitError(err) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
+            }
+            RouteError::SAAppNotInstalled(id) => (
+                StatusCode::BAD_REQUEST,
+                format!("App {} not installed", id.0),
+            )
+                .into_response(),
+        }
+    }
+}
+
+impl From<steamworks::SteamAPIInitError> for RouteError {
+    fn from(value: steamworks::SteamAPIInitError) -> Self {
+        Self::SAInitError(value)
+    }
 }

@@ -1,11 +1,11 @@
 use std::env;
 
 #[derive(Debug)]
-enum ConfigError {
+pub enum ConfigError {
     ConfigMissingEnv(&'static str),
 }
 
-pub type Result<T> = std::result::Result<T, ConfigError>;
+pub type ConfigResult<T> = std::result::Result<T, ConfigError>;
 
 #[derive(Debug)]
 #[allow(non_snake_case)]
@@ -21,7 +21,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load_config() -> Result<Self> {
+    pub fn load_config() -> ConfigResult<Self> {
         Ok(Config {
             ENVIRONMENT: Self::get_env_var("ENVIRONMENT")?.into(),
             DB_DOMAIN: Self::get_env_var("DB_DOMAIN")?,
@@ -33,7 +33,7 @@ impl Config {
             BACK_END_PORT: Self::get_env_var("BACK_END_PORT")?,
         })
     }
-    fn get_env_var(name: &'static str) -> Result<String> {
+    fn get_env_var(name: &'static str) -> ConfigResult<String> {
         dotenvy::var(name).map_err(|_| ConfigError::ConfigMissingEnv(name))
     }
 }

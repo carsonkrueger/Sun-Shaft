@@ -5,12 +5,9 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
 
-// mod libs;
-// mod middleware;
-// mod models;
 mod config;
 mod routes;
-// mod services;
+mod services;
 
 #[tokio::main]
 async fn main() {
