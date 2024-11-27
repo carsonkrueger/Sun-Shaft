@@ -20,5 +20,4 @@ tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread"] }
 tower = "0.5.1"
 tower-http = { version = "0.6.1", features = ["cors"] }
 gpu = { path = "libs/gpu" }
-glutin = "0.32.1"
 raw-window-handle = "0.6.2"
