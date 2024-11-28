@@ -1,4 +1,6 @@
 mod hello_world;
+mod media;
+mod media_row;
 mod steam;
 
 use axum::{
@@ -7,6 +9,8 @@ use axum::{
     Router,
 };
 use hello_world::HelloWorldRoute;
+use media::MediaRoute;
+use media_row::MediaRowRoute;
 use sqlx::{Pool, Postgres};
 use steam::SteamRoute;
 use steamworks::AppId;
@@ -24,7 +28,8 @@ pub trait PublicRoute: RoutePath {
     fn router(&self) -> Router<AppState>;
 }
 
-const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[&HelloWorldRoute, &SteamRoute];
+const PUBLIC_ROUTES: &[&dyn PublicRoute] =
+    &[&HelloWorldRoute, &SteamRoute, &MediaRoute, &MediaRowRoute];
 // const PRIVATE_ROUTES: [NestedRoute; 1] = [];
 
 pub fn create_routes(state: AppState) -> Router {

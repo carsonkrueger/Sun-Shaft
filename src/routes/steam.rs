@@ -1,10 +1,7 @@
 use std::process::Command;
 
-use crate::services::display::{start_virtual_display, swap_display};
-
 use super::{AppState, PublicRoute, RoutePath, RouteResult};
 use axum::{extract::Path, routing::get, Router};
-use steamworks::AppId;
 
 pub struct SteamRoute;
 
@@ -33,14 +30,6 @@ async fn start_game(Path(id): Path<u32>) -> RouteResult<()> {
     // if !client.0.apps().is_app_installed(app_id) {
     //     return Err(super::RouteError::SAAppNotInstalled(app_id));
     // }
-
-    let display_num = 99;
-    swap_display(display_num);
-    let mut child =
-        start_virtual_display(display_num, &"1920x1080x24").expect("Could not start display");
-    child
-        .wait()
-        .expect("Could not wait for virtual display child");
 
     let mut handler = Command::new("steam")
         .arg("-applaunch")
