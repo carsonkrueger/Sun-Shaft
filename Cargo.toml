@@ -21,3 +21,4 @@ tower = "0.5.1"
 tower-http = { version = "0.6.1", features = ["cors"] }
 gpu = { path = "libs/gpu" }
 raw-window-handle = "0.6.2"
+ffmpeg-next = "7.1.0"

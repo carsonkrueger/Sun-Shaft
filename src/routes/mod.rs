@@ -56,6 +56,7 @@ pub type RouteResult<T> = Result<T, RouteError>;
 pub enum RouteError {
     SAInitError(steamworks::SteamAPIInitError),
     SAAppNotInstalled(AppId),
+    FFMpeg(ffmpeg_next::Error),
 }
 
 impl IntoResponse for RouteError {
@@ -76,5 +77,11 @@ impl IntoResponse for RouteError {
 impl From<steamworks::SteamAPIInitError> for RouteError {
     fn from(value: steamworks::SteamAPIInitError) -> Self {
         Self::SAInitError(value)
+    }
+}
+
+impl From<ffmpeg_next::Error> for RouteError {
+    fn from(value: ffmpeg_next::Error) -> Self {
+        Self::FFMpeg(value)
     }
 }

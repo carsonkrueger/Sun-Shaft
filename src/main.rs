@@ -7,7 +7,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 mod config;
 mod routes;
-mod services;
+pub mod services;
 
 #[tokio::main]
 async fn main() {
