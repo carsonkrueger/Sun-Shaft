@@ -1,5 +1,9 @@
+use std::io::Cursor;
+
 use super::{AppState, PublicRoute, RoutePath, RouteResult};
 use axum::{extract::Path, routing::get, Router};
+use ffmpeg_next::{codec::traits::Decoder, Frame, Packet};
+use tokio::sync::mpsc::unbounded_channel;
 
 pub struct MediaRoute;
 
@@ -18,17 +22,7 @@ impl PublicRoute for MediaRoute {
 async fn get_media_chunk(
     Path((collection_id, media_id, offset)): Path<(i32, i32, i32)>,
 ) -> RouteResult<()> {
-    ffmpeg_next::init()?;
-
-    let media_path = crate::services::media::collection_path(collection_id, media_id);
-    let mut ictx = ffmpeg_next::format::input(&media_path)?;
-    let streams = ictx.streams().best(ffmpeg_next::media::Type::Video)?;
-    let stream_index = streams.index();
-
-    ictx.seek(
-        offset as i64 * ffmpeg_next::ffi::AV_TIME_BASE as i64,
-        todo!(),
-    )?;
+    // use get media chunk service
 
     Ok(())
 }
