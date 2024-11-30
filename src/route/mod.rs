@@ -1,6 +1,6 @@
 mod error;
 mod routes;
-mod state;
+pub mod state;
 
 use axum::Router;
 use routes::collection::CollectionRoute;

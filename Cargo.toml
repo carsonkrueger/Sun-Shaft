@@ -21,4 +21,8 @@ tower = "0.5.1"
 tower-http = { version = "0.6.1", features = ["cors"] }
 gpu = { path = "libs/gpu" }
 raw-window-handle = "0.6.2"
-ffmpeg-next = "7.1.0"
+sea-query = { version = "0.32.0", features = [
+    "backend-postgres",
+    "derive",
+    "sea-query-derive",
+] }

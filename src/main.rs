@@ -1,13 +1,14 @@
+mod config;
+pub mod model;
+mod route;
+pub mod services;
+
 use config::Config;
 use dotenvy::dotenv;
-use route::AppState;
+use route::state::AppState;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
-
-mod config;
-mod route;
-pub mod services;
 
 #[tokio::main]
 async fn main() {
