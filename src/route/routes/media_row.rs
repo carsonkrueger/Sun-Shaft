@@ -1,4 +1,6 @@
-use super::{AppState, PublicRoute, RoutePath, RouteResult};
+use crate::route::error::RouteResult;
+
+use super::super::{AppState, PublicRoute, RoutePath};
 use axum::{extract::Path, routing::get, Router};
 
 pub struct MediaRowRoute;

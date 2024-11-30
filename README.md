@@ -1,4 +1,6 @@
-Create and setup the .env with the appropriate variables:
+1. Install `ffmpeg`
+
+2. Create and setup the .env with the appropriate variables:
 
 ```
 JWT_SECRET="5QCyRSK2390jncG4HRDtJrtesdfb30012KLlsejzg"

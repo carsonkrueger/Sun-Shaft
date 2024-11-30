@@ -1,6 +1,6 @@
 use axum::{response::IntoResponse, routing::get, Router};
 
-use super::{AppState, PublicRoute, RoutePath};
+use super::super::{AppState, PublicRoute, RoutePath};
 
 pub struct HelloWorldRoute;
 

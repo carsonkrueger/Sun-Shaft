@@ -1,12 +1,12 @@
 use config::Config;
 use dotenvy::dotenv;
-use routes::AppState;
+use route::AppState;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
 
 mod config;
-mod routes;
+mod route;
 pub mod services;
 
 #[tokio::main]
@@ -26,7 +26,7 @@ async fn main() {
         .allow_headers(Any);
 
     let state = AppState { pool };
-    let router = routes::create_routes(state).layer(cors);
+    let router = route::create_routes(state).layer(cors);
 
     let addr = format!("{}:{}", config.BACK_END_DOMAIN, config.BACK_END_PORT);
     let listener = tokio::net::TcpListener::bind(&addr)
