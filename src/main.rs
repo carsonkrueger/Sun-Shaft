@@ -2,6 +2,7 @@ mod config;
 pub mod model;
 mod route;
 pub mod services;
+pub mod util;
 
 use config::Config;
 use dotenvy::dotenv;

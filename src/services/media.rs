@@ -2,11 +2,11 @@ use super::path::ROOT_ABSOLUTE_PATH;
 use std::{
     ffi::OsStr,
     io::Read,
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::{Command, Stdio},
 };
 
-const MEDIA_PATH: &'static str = "/media";
+const MEDIA_PATH: &'static str = "media";
 
 pub fn collection_path(collection_id: i32, media_id: i32) -> PathBuf {
     let media_path = PathBuf::from(format!(
@@ -16,8 +16,11 @@ pub fn collection_path(collection_id: i32, media_id: i32) -> PathBuf {
     ROOT_ABSOLUTE_PATH.join(media_path)
 }
 
-pub fn item_path(media_id: i32) -> PathBuf {
-    let media_path = PathBuf::from(format!("/{}/{}.mp4", MEDIA_PATH, media_id));
+pub fn item_path(media_id: i64, extension: &str) -> PathBuf {
+    let media_path = PathBuf::from(format!(
+        "./{}/{}/{}{}",
+        MEDIA_PATH, media_id, media_id, extension
+    ));
     ROOT_ABSOLUTE_PATH.join(media_path)
 }
 
