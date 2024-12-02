@@ -17,7 +17,11 @@ sqlx = { version = "0.8.2", features = [
     "chrono",
 ] }
 steamworks = "0.11.0"
-tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.41.1", features = [
+    "macros",
+    "process",
+    "rt-multi-thread",
+] }
 tower = "0.5.1"
 tower-http = { version = "0.6.1", features = ["cors"] }
 raw-window-handle = "0.6.2"

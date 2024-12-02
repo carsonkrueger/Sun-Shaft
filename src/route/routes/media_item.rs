@@ -1,10 +1,12 @@
 use super::super::{AppState, PublicRoute, RoutePath};
 use crate::model::schema::Schema;
 use crate::model::schemas::media_management::items::ItemsIden;
+use crate::services::response::buffer_to_stream_response;
 use crate::util;
 use crate::{route::error::RouteResult, services};
-use axum::body::Bytes;
+use axum::body::{Body, Bytes};
 use axum::extract::{DefaultBodyLimit, State};
+use axum::response::Response;
 use axum::routing::post;
 use axum::{extract::Path, routing::get, Router};
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
@@ -29,14 +31,16 @@ impl PublicRoute for MediaItemRoute {
     }
 }
 
-async fn get_item_chunk(Path((media_id, offset)): Path<(i64, u32)>) -> RouteResult<()> {
+async fn get_item_chunk(Path((media_id, offset)): Path<(i64, u32)>) -> RouteResult<Response<Body>> {
     let path = services::media::item_path(media_id, ".mp4");
     let duration_seconds = 10;
     let mut buffer = Vec::new();
-    services::media::get_media_chunk(path, offset, duration_seconds, &mut buffer)?;
-    println!("buffer len: {}", buffer.len());
+    services::media::get_media_chunk(path, offset, duration_seconds, &mut buffer).await?;
 
-    Ok(())
+    let buffer_len = buffer.len();
+    let response = buffer_to_stream_response(buffer, buffer_len, "video/mp4").await;
+
+    Ok(response)
 }
 
 #[derive(TryFromMultipart)]
