@@ -1,6 +1,6 @@
 use super::path::ROOT_ABSOLUTE_PATH;
 use std::{ffi::OsStr, path::PathBuf, process::Stdio};
-use tokio::process::Command;
+use tokio::{io::AsyncWriteExt, process::Command};
 
 const MEDIA_PATH: &'static str = "media";
 
@@ -27,9 +27,8 @@ pub async fn get_media_chunk<T: AsRef<OsStr>>(
     output_buffer: &mut Vec<u8>,
 ) -> tokio::io::Result<()> {
     let ffmpeg_process = Command::new("ffmpeg")
-        // .arg("-nostats")
-        .arg("-loglevel")
-        .arg("quiet")
+        // .arg("-loglevel")
+        // .arg("quiet")
         .arg("-hwaccel")
         .arg("vaapi")
         .arg("-vaapi_device")
@@ -37,28 +36,59 @@ pub async fn get_media_chunk<T: AsRef<OsStr>>(
         .arg("-i")
         .arg(input_path)
         .arg("-ss")
-        .arg(start.to_string())
+        .arg(start.to_string()) // fix ss to use pts
         .arg("-t")
         .arg(duration.to_string())
-        .arg("-vf")
-        .arg("format=nv12,hwupload")
-        .arg("-c:v")
-        // .arg("libx264")
-        .arg("h264_vaapi")
+        .arg("-c")
+        .arg("copy")
         .arg("-movflags")
+        // .arg("faststart+frag_keyframe")
         .arg("frag_keyframe+empty_moov")
         .arg("-f")
         .arg("mp4")
-        // .arg("-")
         .arg("pipe:1")
         .stdout(Stdio::piped())
         .spawn()?;
 
     let out = ffmpeg_process.wait_with_output().await?;
-
     output_buffer.resize(out.stdout.len(), 0);
     output_buffer.copy_from_slice(&out.stdout);
     println!("Captured {} bytes of MP4 data", output_buffer.len());
+
+    Ok(())
+}
+
+pub async fn store_and_compress_media<T: AsRef<OsStr>>(
+    output_path: T,
+    input_buffer: &[u8],
+) -> tokio::io::Result<()> {
+    let mut ffmpeg_process = Command::new("ffmpeg")
+        // .arg("-loglevel")
+        // .arg("quiet")
+        .arg("-hwaccel")
+        .arg("vaapi")
+        .arg("-vaapi_device")
+        .arg("/dev/dri/renderD128")
+        .arg("-i")
+        .arg("pipe:0")
+        .arg("-vf")
+        .arg("format=nv12,hwupload")
+        .arg("-c:v")
+        .arg("h264_vaapi")
+        .arg("-movflags")
+        .arg("frag_keyframe+empty_moov")
+        .arg("-f")
+        .arg("mp4")
+        .arg(output_path)
+        .stdin(Stdio::piped())
+        .spawn()?;
+
+    if let Some(stdin) = ffmpeg_process.stdin.as_mut() {
+        stdin.write_all(input_buffer).await?;
+    }
+    ffmpeg_process.wait().await?;
+
+    println!("Wrote {} bytes of MP4 data", input_buffer.len());
 
     Ok(())
 }
