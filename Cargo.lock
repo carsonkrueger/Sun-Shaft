@@ -6,6 +6,7 @@ version = 3
 name = "Sun-Shaft"
 version = "0.1.0"
 dependencies = [
+ "async-tempfile",
  "axum",
  "axum_typed_multipart",
  "chrono",
@@ -77,6 +78,15 @@ name = "anyhow"
 version = "1.0.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c95c10ba0b00a02636238b814946408b1322d5ac4760326e6fb8ec956d85775"
+
+[[package]]
+name = "async-tempfile"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acb90d9834a8015109afc79f1f548223a0614edcbab62fb35b62d4b707e975e7"
+dependencies = [
+ "tokio",
+]
 
 [[package]]
 name = "async-trait"
