@@ -1,6 +1,7 @@
-use super::super::{AppState, PublicRoute, RoutePath};
 use crate::model::schema::Schema;
 use crate::model::schemas::media_management::items::ItemsIden;
+use crate::route::state::AppState;
+use crate::route::{PublicRoute, RoutePath};
 use crate::services::media::{chunk_name, get_media_chunk};
 use crate::services::path::ROOT_ABSOLUTE_PATH;
 use crate::services::response::buffer_to_stream_response;

@@ -3,9 +3,9 @@ mod routes;
 pub mod state;
 
 use axum::Router;
-use routes::collection::CollectionRoute;
 use routes::hello_world::HelloWorldRoute;
-use routes::media_item::MediaItemRoute;
+use routes::media::collection::CollectionRoute;
+use routes::media::item::MediaItemRoute;
 use routes::media_row::MediaRowRoute;
 use routes::steam::SteamRoute;
 use state::AppState;
@@ -18,6 +18,24 @@ pub trait PublicRoute: RoutePath {
     fn router(&self) -> Router<AppState>;
 }
 
+pub struct PrivateRouteBuilder {
+    router: Router<AppState>,
+    name: &'static str,
+}
+
+impl PrivateRouteBuilder {
+    pub fn new(name: &'static str) -> Self {
+        Self {
+            router: Router::new(),
+            name,
+        }
+    }
+}
+
+pub trait PrivateRoute: RoutePath {
+    fn router(&self) -> Router<AppState>;
+}
+
 const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[
     &HelloWorldRoute,
     &SteamRoute,
@@ -25,7 +43,7 @@ const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[
     &MediaItemRoute,
     &MediaRowRoute,
 ];
-// const PRIVATE_ROUTES: [NestedRoute; 1] = [];
+const PRIVATE_ROUTES: &[&dyn PrivateRoute] = &[];
 
 pub fn create_routes(state: AppState) -> Router {
     // Router::new()
