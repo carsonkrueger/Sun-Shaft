@@ -1,5 +1,3 @@
-use std::pin::pin;
-
 use super::super::{AppState, PublicRoute, RoutePath};
 use crate::{
     route::error::RouteResult,

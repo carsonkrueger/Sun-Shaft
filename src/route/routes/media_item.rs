@@ -2,6 +2,7 @@ use super::super::{AppState, PublicRoute, RoutePath};
 use crate::model::schema::Schema;
 use crate::model::schemas::media_management::items::ItemsIden;
 use crate::services::media::{chunk_name, get_media_chunk};
+use crate::services::path::ROOT_ABSOLUTE_PATH;
 use crate::services::response::buffer_to_stream_response;
 use crate::{route::error::RouteResult, services};
 use axum::body::{Body, Bytes};
@@ -62,12 +63,14 @@ async fn post_item(
         .returning_col(ItemsIden::Id)
         .build_sqlx(PostgresQueryBuilder);
 
+    let mut tx = s.pool.begin().await?;
     let (item_id,) = sqlx::query_as_with::<Postgres, (i64,), _>(&sql, values)
-        .fetch_one(&s.pool)
+        .fetch_one(&mut *tx)
         .await?;
 
-    let input_path = format!("/home/carson/Repos/sun-shaft/{}.mp4", item_id);
-    let mut f = async_tempfile::TempFile::new_with_name(input_path.clone())
+    // let extension = body.file.metadata.
+    let input_path = ROOT_ABSOLUTE_PATH.join(format!("{}.mp4", item_id));
+    let mut f = async_tempfile::TempFile::new_with_name(input_path.to_str().unwrap())
         .await
         .unwrap();
     f.open_rw()
@@ -80,7 +83,8 @@ async fn post_item(
 
     let output_dir = services::media::item_dir(item_id);
     std::fs::create_dir_all(output_dir.clone())?;
-    services::media::chop_and_store::<String>(input_path.into(), &output_dir).await?;
+    services::media::chop_and_store(input_path, &output_dir).await?;
 
+    tx.commit().await?;
     Ok(())
 }
