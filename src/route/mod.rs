@@ -14,36 +14,18 @@ pub trait RoutePath {
     fn path(&self) -> &'static str;
 }
 
-pub trait PublicRoute: RoutePath {
+pub trait RouteRouter: RoutePath {
     fn router(&self) -> Router<AppState>;
 }
 
-pub struct PrivateRouteBuilder {
-    router: Router<AppState>,
-    name: &'static str,
-}
-
-impl PrivateRouteBuilder {
-    pub fn new(name: &'static str) -> Self {
-        Self {
-            router: Router::new(),
-            name,
-        }
-    }
-}
-
-pub trait PrivateRoute: RoutePath {
-    fn router(&self) -> Router<AppState>;
-}
-
-const PUBLIC_ROUTES: &[&dyn PublicRoute] = &[
+const PUBLIC_ROUTES: &[&dyn RouteRouter] = &[
     &HelloWorldRoute,
     &SteamRoute,
     &CollectionRoute,
     &MediaItemRoute,
     &MediaRowRoute,
 ];
-const PRIVATE_ROUTES: &[&dyn PrivateRoute] = &[];
+const PRIVATE_ROUTES: &[&dyn RouteRouter] = &[];
 
 pub fn create_routes(state: AppState) -> Router {
     // Router::new()
@@ -58,6 +40,11 @@ pub fn create_routes(state: AppState) -> Router {
     //         .layer(CookieManagerLayer::new())
     //         .with_state(app_state)
     let mut router = Router::new();
+    for &r in PRIVATE_ROUTES {
+        router = router.nest(r.path(), r.router());
+    }
+    // add auth MW here
+    // router.layer() ...
     for &r in PUBLIC_ROUTES {
         router = router.nest(r.path(), r.router());
     }

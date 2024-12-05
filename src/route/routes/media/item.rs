@@ -1,7 +1,7 @@
 use crate::model::schema::Schema;
 use crate::model::schemas::media_management::items::ItemsIden;
 use crate::route::state::AppState;
-use crate::route::{PublicRoute, RoutePath};
+use crate::route::{RoutePath, RouteRouter};
 use crate::services::media::{chunk_name, get_media_chunk};
 use crate::services::path::ROOT_ABSOLUTE_PATH;
 use crate::services::response::buffer_to_stream_response;
@@ -25,7 +25,7 @@ impl RoutePath for MediaItemRoute {
     }
 }
 
-impl PublicRoute for MediaItemRoute {
+impl RouteRouter for MediaItemRoute {
     fn router(&self) -> axum::Router<AppState> {
         Router::new()
             .route("/:media_id/:offset", get(get_item_chunk))

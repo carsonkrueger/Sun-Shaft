@@ -1,6 +1,6 @@
 use crate::route::error::RouteResult;
 
-use super::super::{AppState, PublicRoute, RoutePath};
+use super::super::{AppState, RoutePath, RouteRouter};
 use axum::{extract::Path, routing::get, Router};
 
 pub struct MediaRowRoute;
@@ -11,7 +11,7 @@ impl RoutePath for MediaRowRoute {
     }
 }
 
-impl PublicRoute for MediaRowRoute {
+impl RouteRouter for MediaRowRoute {
     fn router(&self) -> axum::Router<AppState> {
         Router::new().route("/:cat_id/:offset", get(get_row))
     }

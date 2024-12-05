@@ -1,6 +1,6 @@
 use crate::route::error::RouteResult;
 
-use super::super::{AppState, PublicRoute, RoutePath};
+use super::super::{AppState, RoutePath, RouteRouter};
 use axum::{extract::Path, routing::get, Router};
 use std::process::Command;
 
@@ -12,7 +12,7 @@ impl RoutePath for SteamRoute {
     }
 }
 
-impl PublicRoute for SteamRoute {
+impl RouteRouter for SteamRoute {
     fn router(&self) -> axum::Router<AppState> {
         Router::new().route("/:id", get(start_game))
     }

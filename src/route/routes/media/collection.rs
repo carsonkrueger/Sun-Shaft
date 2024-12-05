@@ -1,5 +1,5 @@
 use crate::{
-    route::{error::RouteResult, state::AppState, PublicRoute, RoutePath},
+    route::{error::RouteResult, state::AppState, RoutePath, RouteRouter},
     services::{self, media::chunk_name, response::buffer_to_stream_response},
 };
 use axum::{body::Body, extract::Path, response::Response, routing::get, Router};
@@ -12,7 +12,7 @@ impl RoutePath for CollectionRoute {
     }
 }
 
-impl PublicRoute for CollectionRoute {
+impl RouteRouter for CollectionRoute {
     fn router(&self) -> axum::Router<AppState> {
         Router::new().route(
             "/:collection_id/:media_id/:offset",

@@ -1,4 +1,6 @@
 mod config;
+pub mod enums;
+pub mod middleware;
 pub mod model;
 mod route;
 pub mod services;
