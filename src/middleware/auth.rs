@@ -1,21 +1,31 @@
-use std::env;
+use std::{cell::LazyCell, env};
 
-use axum::{body::Body, extract::Request, middleware::Next, response::Response};
-use lib_routes::error::{RouteError, RouterResult};
-use once_cell::sync::Lazy;
+use axum::{
+    body::Body,
+    extract::{Request, State},
+    middleware::Next,
+    response::Response,
+};
 use tower_cookies::{Cookie, Cookies};
 
-use ctx::Ctx;
+use crate::{
+    route::error::{RouteError, RouteResult},
+    services::ctx::Ctx,
+};
+
+use crate::{route::state::AppState, services::jwt::JWT};
 
 pub const AUTH_TOKEN_HEADER: &'static str = "auth_token";
+pub const JWT_SECRET: LazyCell<String> =
+    LazyCell::new(|| env::var("JWT_SECRET").expect("JWT_SECRET"));
 
 /// Enforces auth Ctx within extensions and validates the jwt
 pub async fn validate_auth(
-    ctx: RouterResult<Ctx>,
+    ctx: RouteResult<Ctx>,
     req: Request<Body>,
     next: Next,
-) -> RouterResult<Response> {
-    ctx?.jwt().validate_token(&JWT_SECRET)?;
+) -> RouteResult<Response> {
+    ctx?;
     Ok(next.run(req).await)
 }
 
@@ -25,15 +35,15 @@ pub async fn ctx_resolver(
     cookies: Cookies,
     mut req: Request<Body>,
     next: Next,
-) -> RouterResult<Response> {
+) -> RouteResult<Response> {
     let token_str = cookies
         .get(AUTH_TOKEN_HEADER)
         .map(|c| c.value().to_string());
 
     let result_ctx: Result<Ctx, RouteError> = match token_str {
-        Some(t) => match JWT::parse_token(t) {
-            Ok(jwt) => Ok(Ctx::new(jwt)),
-            Err(e) => Err(RouteError::JWTError(e)),
+        Some(t) => match JWT::decode(&t, JWT_SECRET.as_bytes()) {
+            Ok(jwt) => Ok(Ctx::new(jwt.claims)),
+            Err(e) => Err(RouteError::JWT(e.to_string())),
         },
         None => Err(RouteError::MissingAuthCookie),
     };

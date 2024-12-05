@@ -7,7 +7,7 @@ pub enum ConfigError {
 
 pub type ConfigResult<T> = std::result::Result<T, ConfigError>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(non_snake_case)]
 pub struct Config {
     pub ENVIRONMENT: Environment,
@@ -38,7 +38,7 @@ impl Config {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Environment {
     DEV,
     PROD,

@@ -35,3 +35,5 @@ tokio-util = { version = "0.7.12", features = ["full"] }
 axum_typed_multipart = "0.13.2"
 sea-query-binder = { version = "0.7.0", features = ["sqlx", "sqlx-postgres"] }
 async-tempfile = "0.6.0"
+jsonwebtoken = "9.3.0"
+tower-cookies = "0.10.0"

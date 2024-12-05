@@ -2,6 +2,8 @@ pub mod error;
 mod routes;
 pub mod state;
 
+use crate::middleware::auth::ctx_resolver;
+use axum::middleware::from_fn;
 use axum::Router;
 use routes::hello_world::HelloWorldRoute;
 use routes::media::collection::CollectionRoute;
@@ -9,6 +11,7 @@ use routes::media::item::MediaItemRoute;
 use routes::media_row::MediaRowRoute;
 use routes::steam::SteamRoute;
 use state::AppState;
+use tower_cookies::CookieManagerLayer;
 
 pub trait RoutePath {
     fn path(&self) -> &'static str;
@@ -28,25 +31,23 @@ const PUBLIC_ROUTES: &[&dyn RouteRouter] = &[
 const PRIVATE_ROUTES: &[&dyn RouteRouter] = &[];
 
 pub fn create_routes(state: AppState) -> Router {
-    // Router::new()
-    //         .nest(HelloWorldRoute::PATH, HelloWorldRoute::router())
-    //         .nest(UserRoute::PATH, UserRoute::router())
-    //         .nest(ContentRoute::PATH, ContentRoute::router())
-    //         .layer(from_fn(validate_auth))
-    //         .nest(ExercisePresetRoute::PATH, ExercisePresetRoute::router())
-    //         .nest(AuthRoute::PATH, AuthRoute::router())
-    //         .layer(from_fn(ctx_resolver))
-    //         .layer(map_response(logger))
-    //         .layer(CookieManagerLayer::new())
-    //         .with_state(app_state)
     let mut router = Router::new();
+
+    // PRIVATE ROUTES
     for &r in PRIVATE_ROUTES {
         router = router.nest(r.path(), r.router());
     }
-    // add auth MW here
-    // router.layer() ...
+
+    // AUTH MIDDLEWARE (protects private routes)
+    router = router.layer(from_fn(ctx_resolver));
+
+    // PUBLIC ROUTES
     for &r in PUBLIC_ROUTES {
         router = router.nest(r.path(), r.router());
     }
+
+    // Logging, Cookies, State
+    // .layer(map_response(logger))
+    router = router.layer(CookieManagerLayer::new());
     router.with_state(state)
 }
