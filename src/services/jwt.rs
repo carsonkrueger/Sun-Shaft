@@ -22,4 +22,10 @@ impl JWT {
     pub fn decode(token: &str, secret: &[u8]) -> jsonwebtoken::errors::Result<TokenData<Self>> {
         decode::<Self>(token, &DecodingKey::from_secret(secret), &VALIDATION_KEY)
     }
+    pub fn user_id(&self) -> i64 {
+        self.user_id
+    }
+    pub fn permissions(&self) -> &[Permission] {
+        &self.permissions
+    }
 }

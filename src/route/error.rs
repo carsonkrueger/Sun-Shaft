@@ -18,6 +18,8 @@ pub enum RouteError {
     InvalidAuth,
     MissingAuthCookie,
     JWT(String),
+    RouteMissingPermission,
+    PermissionUnathorized,
 }
 
 impl IntoResponse for RouteError {
@@ -41,6 +43,14 @@ impl IntoResponse for RouteError {
             RouteError::MissingAuthCookie => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Missing Auth Cookie".to_string(),
+            ),
+            RouteError::RouteMissingPermission => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Route missing permission".to_string(),
+            ),
+            PermissionUnauthorized => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "User unauthorized".to_string(),
             ),
         }
         .into_response()

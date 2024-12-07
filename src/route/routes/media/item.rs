@@ -1,3 +1,5 @@
+use crate::enums::permission::{Item, Permission};
+use crate::middleware::permission::create_permission_mw;
 use crate::model::schema::Schema;
 use crate::model::schemas::media_management::items::ItemsIden;
 use crate::route::state::AppState;
@@ -8,6 +10,7 @@ use crate::services::response::buffer_to_stream_response;
 use crate::{route::error::RouteResult, services};
 use axum::body::{Body, Bytes};
 use axum::extract::{DefaultBodyLimit, State};
+use axum::middleware::from_fn;
 use axum::response::Response;
 use axum::routing::post;
 use axum::{extract::Path, routing::get, Router};
@@ -28,8 +31,15 @@ impl RoutePath for MediaItemRoute {
 impl RouteRouter for MediaItemRoute {
     fn router(&self) -> axum::Router<AppState> {
         Router::new()
-            .route("/:media_id/:offset", get(get_item_chunk))
-            .route("/", post(post_item))
+            .route(
+                "/:media_id/:offset",
+                get(get_item_chunk)
+                    .route_layer(from_fn(create_permission_mw(Item::GetItem.into()))),
+            )
+            .route(
+                "/",
+                post(post_item).route_layer(from_fn(create_permission_mw(Item::PostItem.into()))),
+            )
             .layer(DefaultBodyLimit::max(250 * 1024 * 1024)) // 250 GB limit
     }
 }

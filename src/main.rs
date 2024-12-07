@@ -29,7 +29,7 @@ async fn main() {
         .allow_origin(Any)
         .allow_headers(Any);
 
-    let state = AppState { pool, config };
+    let state = AppState { pool };
     let router = route::create_routes(state).layer(cors);
 
     let addr = format!("{}:{}", config.BACK_END_DOMAIN, config.BACK_END_PORT);

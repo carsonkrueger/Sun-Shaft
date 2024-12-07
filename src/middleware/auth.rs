@@ -1,19 +1,11 @@
-use std::{cell::LazyCell, env};
-
-use axum::{
-    body::Body,
-    extract::{Request, State},
-    middleware::Next,
-    response::Response,
-};
-use tower_cookies::{Cookie, Cookies};
-
+use crate::services::jwt::JWT;
 use crate::{
     route::error::{RouteError, RouteResult},
     services::ctx::Ctx,
 };
-
-use crate::{route::state::AppState, services::jwt::JWT};
+use axum::{body::Body, extract::Request, middleware::Next, response::Response};
+use std::{cell::LazyCell, env};
+use tower_cookies::{Cookie, Cookies};
 
 pub const AUTH_TOKEN_HEADER: &'static str = "auth_token";
 pub const JWT_SECRET: LazyCell<String> =

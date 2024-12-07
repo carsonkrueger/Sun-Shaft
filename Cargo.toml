@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 gpu = { path = "libs/gpu" }
+enum-derive = { path = "libs/enum-derive" }
 axum = { version = "0.7.8", features = ["multipart"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 dotenvy = "0.15.7"
