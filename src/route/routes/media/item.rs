@@ -1,4 +1,4 @@
-use crate::enums::permission::{Item, Permission};
+use crate::enums::permission::Item;
 use crate::middleware::permission::create_permission_mw;
 use crate::model::schema::Schema;
 use crate::model::schemas::media_management::items::ItemsIden;

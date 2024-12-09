@@ -38,3 +38,4 @@ sea-query-binder = { version = "0.7.0", features = ["sqlx", "sqlx-postgres"] }
 async-tempfile = "0.6.0"
 jsonwebtoken = "9.3.0"
 tower-cookies = "0.10.0"
+argon2 = "0.5.3"

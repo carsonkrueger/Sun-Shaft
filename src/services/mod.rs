@@ -4,3 +4,4 @@ pub mod media;
 pub mod path;
 pub mod permissions;
 pub mod response;
+pub mod user;

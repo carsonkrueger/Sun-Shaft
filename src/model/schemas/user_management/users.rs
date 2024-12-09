@@ -1,6 +1,7 @@
 use sea_query::enum_def;
-use sqlx::types::chrono;
+use sqlx::{types::chrono, FromRow};
 
+#[derive(FromRow)]
 #[enum_def]
 pub struct Users {
     pub id: i32,

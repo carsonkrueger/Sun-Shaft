@@ -20,6 +20,7 @@ pub enum RouteError {
     JWT(String),
     RouteMissingPermission,
     PermissionUnathorized,
+    Argon2(String),
 }
 
 impl IntoResponse for RouteError {
@@ -52,6 +53,7 @@ impl IntoResponse for RouteError {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "User unauthorized".to_string(),
             ),
+            Self::Argon2(e) => (StatusCode::INTERNAL_SERVER_ERROR, e),
         }
         .into_response()
     }
@@ -90,5 +92,11 @@ impl From<sqlx::error::Error> for RouteError {
 impl From<jsonwebtoken::errors::Error> for RouteError {
     fn from(value: jsonwebtoken::errors::Error) -> Self {
         Self::JWT(value.to_string())
+    }
+}
+
+impl From<argon2::Error> for RouteError {
+    fn from(value: argon2::Error) -> Self {
+        Self::Argon2(value.to_string())
     }
 }
