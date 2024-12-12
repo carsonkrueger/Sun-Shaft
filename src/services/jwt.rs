@@ -6,19 +6,17 @@ use jsonwebtoken::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::permissions;
-
 const JWT_HEADER: LazyCell<Header> = LazyCell::new(|| Header::new(Algorithm::HS256));
 const VALIDATION_KEY: LazyCell<Validation> = LazyCell::new(|| Validation::new(Algorithm::HS256));
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JWT {
-    user_id: i32,
+    user_id: i64,
     permissions: Vec<Permission>,
 }
 
 impl JWT {
-    pub fn new(user_id: i32, permissions: Vec<Permission>) -> Self {
+    pub fn new(user_id: i64, permissions: Vec<Permission>) -> Self {
         Self {
             user_id,
             permissions,
@@ -30,7 +28,7 @@ impl JWT {
     pub fn decode(token: &str, secret: &[u8]) -> jsonwebtoken::errors::Result<TokenData<Self>> {
         decode::<Self>(token, &DecodingKey::from_secret(secret), &VALIDATION_KEY)
     }
-    pub fn user_id(&self) -> i32 {
+    pub fn user_id(&self) -> i64 {
         self.user_id
     }
     pub fn permissions(&self) -> &[Permission] {

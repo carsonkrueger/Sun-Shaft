@@ -21,6 +21,7 @@ pub enum RouteError {
     RouteMissingPermission,
     PermissionUnathorized,
     Argon2(String),
+    Argon2PasswordHash(String),
 }
 
 impl IntoResponse for RouteError {
@@ -54,6 +55,7 @@ impl IntoResponse for RouteError {
                 "User unauthorized".to_string(),
             ),
             Self::Argon2(e) => (StatusCode::INTERNAL_SERVER_ERROR, e),
+            Self::Argon2PasswordHash(e) => (StatusCode::INTERNAL_SERVER_ERROR, e),
         }
         .into_response()
     }
@@ -98,5 +100,11 @@ impl From<jsonwebtoken::errors::Error> for RouteError {
 impl From<argon2::Error> for RouteError {
     fn from(value: argon2::Error) -> Self {
         Self::Argon2(value.to_string())
+    }
+}
+
+impl From<argon2::password_hash::Error> for RouteError {
+    fn from(value: argon2::password_hash::Error) -> Self {
+        Self::Argon2PasswordHash(value.to_string())
     }
 }

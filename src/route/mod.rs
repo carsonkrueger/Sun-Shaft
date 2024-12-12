@@ -5,6 +5,7 @@ pub mod state;
 use crate::middleware::auth::ctx_resolver;
 use axum::middleware::from_fn;
 use axum::Router;
+use routes::auth::AuthRoute;
 use routes::hello_world::HelloWorldRoute;
 use routes::media::collection::CollectionRoute;
 use routes::media::item::MediaItemRoute;
@@ -27,6 +28,7 @@ const PUBLIC_ROUTES: &[&dyn RouteRouter] = &[
     &CollectionRoute,
     &MediaItemRoute,
     &MediaRowRoute,
+    &AuthRoute,
 ];
 const PRIVATE_ROUTES: &[&dyn RouteRouter] = &[];
 

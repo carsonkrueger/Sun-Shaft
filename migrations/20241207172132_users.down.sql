@@ -9,6 +9,6 @@ DROP TABLE user_management.permissions;
 
 DROP INDEX user_management_users_email;
 
-DROP TABLE user_management.items;
+DROP TABLE user_management.sun_users;
 
 DROP SCHEMA user_management;
