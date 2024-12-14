@@ -5,7 +5,10 @@ use crate::{
     },
     route::error::RouteResult,
 };
-use argon2::{password_hash::rand_core::OsRng, Argon2, PasswordHash, PasswordVerifier};
+use argon2::{
+    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher},
+    Argon2, ParamsBuilder, PasswordVerifier,
+};
 use sea_query::{Expr, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
 use sqlx::{Pool, Postgres};
@@ -17,13 +20,12 @@ pub async fn create_user(
 ) -> RouteResult<SunUsers> {
     let argon2 = Argon2::default();
     let salt = argon2::password_hash::SaltString::generate(&mut OsRng);
-    let mut hash = vec![0u8; 32];
-    argon2.hash_password_into(password.as_bytes(), salt.as_str().as_bytes(), &mut hash)?;
+    let hash = argon2.hash_password(password.as_bytes(), &salt)?;
 
     let (sql, values) = Query::insert()
         .into_table((Schema::UserManagement, SunUsersIden::Table))
         .columns([SunUsersIden::Email, SunUsersIden::Password])
-        .values([Expr::val(email).into(), Expr::val(hash).into()])?
+        .values([Expr::val(email).into(), Expr::val(hash.to_string()).into()])?
         .returning_all()
         .build_sqlx(PostgresQueryBuilder);
 
@@ -64,11 +66,8 @@ pub async fn get_user_by_email(
 }
 
 pub fn verify_user(user: &SunUsers, password: &str) -> RouteResult<()> {
+    let hash = PasswordHash::new(&user.password)?;
     let argon2 = Argon2::default();
-    let hash = PasswordHash::new(&user.password);
-    println!("{:?}", hash);
-    let r = argon2.verify_password(password.as_bytes(), &hash?);
-    println!("{:?}", r);
-    r?;
+    argon2.verify_password(password.as_bytes(), &hash)?;
     Ok(())
 }
