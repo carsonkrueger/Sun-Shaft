@@ -1,4 +1,8 @@
-use sea_query::Iden;
+use sea_query::{Iden, TableRef};
+
+pub trait IntoSchemaTableRef {
+    fn schema_table_ref() -> TableRef;
+}
 
 #[derive(Clone)]
 pub enum Schema {

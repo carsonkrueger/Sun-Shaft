@@ -1,3 +1,4 @@
+use crate::model::error::ModelError;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -22,6 +23,7 @@ pub enum RouteError {
     PermissionUnathorized,
     Argon2(String),
     Argon2PasswordHash(String),
+    Model(String),
 }
 
 impl IntoResponse for RouteError {
@@ -56,6 +58,7 @@ impl IntoResponse for RouteError {
             ),
             Self::Argon2(e) => (StatusCode::INTERNAL_SERVER_ERROR, e),
             Self::Argon2PasswordHash(e) => (StatusCode::INTERNAL_SERVER_ERROR, e),
+            Self::Model(e) => (StatusCode::INTERNAL_SERVER_ERROR, e),
         }
         .into_response()
     }
@@ -106,5 +109,11 @@ impl From<argon2::Error> for RouteError {
 impl From<argon2::password_hash::Error> for RouteError {
     fn from(value: argon2::password_hash::Error) -> Self {
         Self::Argon2PasswordHash(value.to_string())
+    }
+}
+
+impl From<ModelError> for RouteError {
+    fn from(value: ModelError) -> Self {
+        Self::Model(value.to_string())
     }
 }

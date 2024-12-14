@@ -1,5 +1,6 @@
 use crate::{
     model::{
+        base,
         schema::Schema,
         schemas::user_management::users::{SunUsers, SunUsersIden},
     },
@@ -7,7 +8,7 @@ use crate::{
 };
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher},
-    Argon2, ParamsBuilder, PasswordVerifier,
+    Argon2, PasswordVerifier,
 };
 use sea_query::{Expr, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
@@ -22,16 +23,12 @@ pub async fn create_user(
     let salt = argon2::password_hash::SaltString::generate(&mut OsRng);
     let hash = argon2.hash_password(password.as_bytes(), &salt)?;
 
-    let (sql, values) = Query::insert()
-        .into_table((Schema::UserManagement, SunUsersIden::Table))
-        .columns([SunUsersIden::Email, SunUsersIden::Password])
-        .values([Expr::val(email).into(), Expr::val(hash.to_string()).into()])?
-        .returning_all()
-        .build_sqlx(PostgresQueryBuilder);
-
-    let user = sqlx::query_as_with::<Postgres, SunUsers, _>(&sql, values)
-        .fetch_one(pool)
-        .await?;
+    let user = base::insert_returning::<SunUsers, _, _, _>(
+        [SunUsersIden::Email, SunUsersIden::Password],
+        [Expr::val(email).into(), Expr::val(hash.to_string()).into()],
+        pool,
+    )
+    .await?;
 
     Ok(user)
 }
